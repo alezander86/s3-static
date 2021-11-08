@@ -1,30 +1,31 @@
-name: CI / CD
-
-# Controls when the action will run. 
-on:
-  # Triggers the workflow on push for the main branch
-  push:
-    branches: [ main ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-  
-env:
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_DEFAULT_REGION: 'us-west-2'
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+name: CI
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: "Build Site"
-      run: bundle exec jekyll build
-      env:
-        JEKYLL_ENV: production
-    - name: "Deploy to AWS S3"
-      run: aws s3 sync ./_site/ s3://${{ secrets.AWS_S3_BUCKET_NAME }} --acl public-read --delete --cache-control max-age=604800
-    - name: "Create AWS Cloudfront Invalidation"
-      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+
+    # Remove this step if you're not using Jekyll or modify it
+    # if you're building your files with a different system
+    - name: Build Jekyll Files
+      run: |
+        docker run \
+        -v $:/srv/jekyll -v $/_site:/srv/jekyll/_site \
+        jekyll/builder:latest /bin/bash -c "chmod 777 /srv/jekyll && jekyll build --future --trace"
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2 # Change this to the location of your S3 Bucket
+
+    # Change ./_site/ to the location of your website in your repository,
+    # with Jekyll _site/ is the default location of the built files
+    - name: Deploy to S3 bucket
+      run: aws s3 sync ./ ${{ secrets.S3_BUCKET }} --delete
+
+    # Remove this step if you're not using CloudFront
+    - name: Invalidate CloudFront Objects
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DIST_ID }} --path "/*"
