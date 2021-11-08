@@ -1,3 +1,5 @@
+name: Build & deploy
+
 on:
   push:
     branches:
@@ -13,3 +15,4 @@ jobs:
           AWS_S3_BUCKET: ${{ secrets.CHANGELOG_AWS_S3_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.CHANGELOG_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.CHANGELOG_AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'eu-central-1'
