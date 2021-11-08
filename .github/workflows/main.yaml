@@ -16,5 +16,5 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.CHANGELOG_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.CHANGELOG_AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'eu-central-1'
-          AWS_S3_PATH: '/'
+          AWS_S3_PATH: '/home/'
           FILE: 'index.html'
