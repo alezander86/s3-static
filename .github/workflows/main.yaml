@@ -17,4 +17,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.CHANGELOG_AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'eu-central-1'
       - name: Deploy static site to S3 bucket    
-        run: aws s3 sync ./public/ s3://${{ secrets.CHANGELOG_AWS_S3_BUCKET }}   
+        run: aws s3 cp ./ s3://${{ secrets.CHANGELOG_AWS_S3_BUCKET }}/   
